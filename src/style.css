@@ -17,3 +17,88 @@ body
     left: 0;
     outline: none;
 }
+
+#ui {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.3);
+    position: absolute;
+    width: 100%;
+    top: 0.3rem;
+    padding: 10px;
+}
+button {
+    background-color: black;
+    color: white;
+    border: none;
+    padding: 0.7rem;
+    border-radius: 3px;
+} button:hover {
+    background-color: white;
+    color: #3c758b;
+    border: 1px solid #3c758b;
+}
+
+.valuesSegment{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+.valuesSegment label{
+    width: 100%;
+    text-align: center;
+    color: black;
+    margin-right: 0.5rem;
+    font-weight: bold;
+    margin-bottom: 0.3rem;
+}
+.valuesSegment input {
+    width: 20%;
+    text-align: center;
+    background: black;
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 1rem;
+    padding: 0.2rem;
+    padding-top: 0.3rem;
+    padding-bottom: 0.3rem;
+    margin-right: 0.5rem;
+}
+.valuesSegment-container{
+    width: 100%;
+    text-align: center;
+}
+.valuesSegment-container .feedback{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+.error-message {
+    color: red;
+    font-size: 12px;
+    margin-bottom: 5px;
+}
+
+footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    bottom: 1rem;
+    width: 100%;
+    padding: 10px;
+}
+#data {
+    bottom: 0;
+    font-size: 14px;
+    color: white;
+    
+    position: absolute;
+    top: 0.3rem;
+    padding: 10px;
+}

@@ -44,6 +44,7 @@ export default class Engine {
         //TIME TICK EVENT
         this.time.on('tick', () => {
             this.update()
+            
         })
     }
 

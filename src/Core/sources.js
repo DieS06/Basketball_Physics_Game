@@ -40,5 +40,10 @@ export default [
         name: 'ringModel',
         type: 'gltfModel',
         path: 'models/Board_Ring/ring_01.gltf'
+    },    
+    {
+        name: 'ballModel',
+        type: 'gltfModel',
+        path: 'models/Ball_Projectile/ball_01.gltf'
     },
 ]

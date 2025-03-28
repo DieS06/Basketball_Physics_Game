@@ -1,4 +1,6 @@
 import EventEmitter from "./EventEmitter"
+import FPSStats from "./FPSStats"
+import Engine from "../Core/Engine"
 
 export default class Time extends EventEmitter {
     constructor() {
@@ -9,6 +11,7 @@ export default class Time extends EventEmitter {
         this.current = this.start
         this.elapsed = 0
         this.delta = 16.666
+        this.stats = new FPSStats()
 
         window.requestAnimationFrame(() => {
             // console.log('tick')
@@ -18,6 +21,8 @@ export default class Time extends EventEmitter {
     }
 
     tick(){
+        this.stats.begin()
+        
         const currentTime = Date.now()
         //console.log(this)
         this.delta = currentTime - this.current
@@ -31,5 +36,8 @@ export default class Time extends EventEmitter {
         
         window.requestAnimationFrame(() => {
             this.tick()
-        })}
+        })
+
+        this.stats.end()
+        }
 }

@@ -10,9 +10,11 @@ export default class Court_Floor {
         //DEBUG SETUP
         if(this.debug.active){
             this.debugFolder = this.debug.ui.addFolder('Board_Ring')
+            this.debugFolder = this.debug.ui.addFolder('Target_Board_Ring')
         }
 
         this.resource = this.resources.items.ringModel
+        this.resorce = this.resources.items.targetModel
 
         this.setModel()
     }
