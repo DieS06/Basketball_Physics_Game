@@ -43,7 +43,30 @@ export default class Projectile_Physics {
         
         this.model.position.set(0, 1, 0)
         this.inMovement = true
-        this.startTime = time.getElapsedTime()
+        //this.startTime = time.getElapsedTime()
+        this.startTime = time.current;
+    }
+
+    update(time){
+        if (!this.model || !this.inMovement) return;
+
+        const elapsedTime = (time.current - this.startTime) / 1000;
+
+        // Ecuaciones del movimiento parabólico
+        const positionX = this.velocityX * elapsedTime;
+        const positionY = this.velocityY * elapsedTime + 0.5 * this.gravity * Math.pow(elapsedTime, 2);
+        const positionZ = this.velocityZ * elapsedTime;
+
+        if (positionY <= 0) {
+            console.log("La bola ha tocado el suelo.");
+            this.inMovement = false;
+            this.model.position.set(positionX, 0, positionZ);
+        } else {
+            this.model.position.set(positionX, positionY, positionZ);
+        }
+
+        //Se debe actualizar el interface
+        this.interface.update(elapsedTime, positionX, positionY, positionZ, this.velocityX, this.velocityY);
     }
 
     //VALIDAR - PROBAR -VERIFICAR
@@ -64,7 +87,4 @@ export default class Projectile_Physics {
         }    
     }
 
-    update(){
-
-    }
 }

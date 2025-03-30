@@ -13,7 +13,7 @@ export default class World {
         this.engine = new Engine()
         this.scene = this.engine.scene
         this.resources = this.engine.resources
-        
+
         this.resources.on('ready', () =>
         {
             this.Court_Floor = new Court_Floor()
@@ -24,10 +24,33 @@ export default class World {
             this.Board_Ring = new Board_Ring()
             this.Ball = new Ball()
             this.environment = new Environment()
+            this.setupUI();
         })
+        this.engine.time.on('tick', () => {
+            this.update();
+        });
 
     }
 
-    update(){
+    setupUI() {
+        const shootBtn = document.getElementById('shoot-btn');
+        if (shootBtn) {
+            shootBtn.addEventListener('click', () => {
+                if (this.Ball) {
+                    console.log("Lanzando el proyectil...");
+                    this.Ball.shoot(this.engine.time);
+                } else {
+                    console.error("No se pudo encontrar la bola.");
+                }
+                console.log("Salio de lanzando");
+            });
+        }
+    }
+
+    update() {
+        
+        if (this.Ball) {
+            this.Ball.update(this.engine.time);
+        }
     }
 }
