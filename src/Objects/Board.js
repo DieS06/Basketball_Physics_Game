@@ -1,6 +1,6 @@
 import Engine from '../Core/Engine.js'
 
-export default class Court_Floor {
+export default class Board {
     constructor(){
         this.engine = new Engine()
         this.scene = this.engine.scene

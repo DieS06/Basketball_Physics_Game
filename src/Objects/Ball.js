@@ -1,6 +1,7 @@
 import Engine from '../Core/Engine.js'
+import Projectile_Physics from '../Core/Projectile_Physics.js'
 
-export default class Court_Fence {
+export default class Ball {
     constructor(){
         this.engine = new Engine()
         this.scene = this.engine.scene
@@ -29,6 +30,7 @@ export default class Court_Fence {
                 child.receiveShadow = true
             }
         })
+        this.projectilePhysics = new Projectile_Physics(this.model);
     }
 
     // setAnim(){
@@ -72,4 +74,16 @@ export default class Court_Fence {
         // if(this.animation.mixer)
         //     this.animation.mixer.update(this.time.delta * 0.0015)
     // } 
+    shoot(time) {
+        if (this.projectilePhysics) {
+            this.projectilePhysics.shoot(time);
+        }
+    }
+
+    update(time) {
+        
+        if (this.projectilePhysics) {
+            this.projectilePhysics.update(time);
+        }
+    }
 }
