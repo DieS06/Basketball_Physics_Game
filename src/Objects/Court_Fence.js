@@ -1,4 +1,5 @@
 import Engine from '../Core/Engine.js'
+import * as THREE from 'three'
 
 export default class Court_Fence {
     constructor(){
@@ -15,7 +16,9 @@ export default class Court_Fence {
         this.resource = this.resources.items.fenceModel
 
         this.setModel()
+        this.setBoungindBox()
     }
+
     setModel(){
         this.model = this.resource.scene
         //this.model.scale.set(0.02, 0.02, 0.02)
@@ -28,5 +31,11 @@ export default class Court_Fence {
                 child.receiveShadow = true
             }
         })
+    }
+
+    setBoungindBox(){
+        this.boundingBox = new THREE.Box3().setFromObject(this.model)
+        this.boundingBoxHelper = new THREE.Box3Helper(this.boundingBox, 0xffff00)
+        this.scene.add(this.boundingBoxHelper)
     }
 }

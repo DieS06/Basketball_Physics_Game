@@ -1,4 +1,5 @@
 import Engine from '../Core/Engine.js'
+import * as THREE from 'three'
 
 export default class Board {
     constructor(){
@@ -15,7 +16,9 @@ export default class Board {
         this.resource = this.resources.items.boardModel
 
         this.setModel()
+        this.setBoungindBox()
     }
+
     setModel(){
         this.model = this.resource.scene
         this.model.position.set(0, 0, 0)
@@ -27,5 +30,11 @@ export default class Board {
                 child.receiveShadow = true
             }
         })
+    }
+
+    setBoungindBox(){
+        this.boundingBox = new THREE.Box3().setFromObject(this.model)
+        this.boundingBoxHelper = new THREE.Box3Helper(this.boundingBox, 0xffff00)
+        this.scene.add(this.boundingBoxHelper)
     }
 }

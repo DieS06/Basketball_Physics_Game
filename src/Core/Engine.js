@@ -36,6 +36,10 @@ export default class Engine {
         this.camera = new Camera()
         this.renderer = new Renderer()
         this.world = new World()
+        this.axes = new THREE.AxesHelper(5)
+        this.grid = new THREE.GridHelper(30, 30)
+
+        this.scene.add(this.axes, this.grid)
 
         //RESIZE EVENT
         this.sizes.on('resize', () => {

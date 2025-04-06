@@ -1,5 +1,6 @@
 import Engine from '../Core/Engine.js'
 import Projectile_Physics from '../Core/Projectile_Physics.js'
+import * as THREE from 'three'
 
 export default class Ball {
     constructor(){
@@ -16,7 +17,7 @@ export default class Ball {
         this.resource = this.resources.items.ballModel
 
         this.setModel()
-        
+        this.setBoungindBox()
     }
 
     setModel(){
@@ -33,47 +34,12 @@ export default class Ball {
         this.projectilePhysics = new Projectile_Physics(this.model);
     }
 
-    // setAnim(){
-        //INITIAL SETUP ANIMATION
-        // this.animation = {}
-        // this.animation.mixer = new THREE.AnimationMixer(this.model)
+    setBoungindBox(){
+        this.boundingBox = new THREE.Box3().setFromObject(this.model)
+        this.boundingBoxHelper = new THREE.Box3Helper(this.boundingBox, 0xffff00)
+        this.scene.add(this.boundingBoxHelper)
+    }
 
-        //ANIMATION MENU SETUP
-        // this.animation.actions = {}
-        // this.animation.actions.idle = this.animation.mixer.clipAction(this.resource.animations[0])
-        // this.animation.actions.walk = this.animation.mixer.clipAction(this.resource.animations[1])
-        // this.animation.actions.run = this.animation.mixer.clipAction(this.resource.animations[2])
-
-        //RUN CURRENT ANIMATION
-        // this.animation.actions.current = this.animation.actions.run
-        // this.animation.actions.current.play()
-
-        // this.animation.play = (name) => {
-        //     const newAction = this.animation.actions[name]
-        //     const oldACtion = this.animation.actions.current
-
-        //     newAction.reset()
-        //     newAction.play()
-        //     newAction.crossFadeFrom(oldACtion, 0.5, true)
-            
-        //     this.animation.actions.current = newAction
-        // }
-
-        //DEBUG SETUP
-        // if(this.debug.active){
-            // const debugObject = {
-
-            // }
-            // this.debugFolder.add(debugObject, 'playIdle')
-            // this.debugFolder.add(debugObject, 'playWalk')
-            // this.debugFolder.add(debugObject, 'playRun')
-        // }
-    // }
-
-    // update(){
-        // if(this.animation.mixer)
-        //     this.animation.mixer.update(this.time.delta * 0.0015)
-    // } 
     shoot(time) {
         if (this.projectilePhysics) {
             this.projectilePhysics.shoot(time);
@@ -81,7 +47,6 @@ export default class Ball {
     }
 
     update(time) {
-        
         if (this.projectilePhysics) {
             this.projectilePhysics.update(time);
         }
