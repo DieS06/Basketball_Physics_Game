@@ -1,6 +1,7 @@
 import Engine from '../Core/Engine.js'
 import Interface from '../Utils/Interface.js'
 import * as THREE from 'three'
+import Impulse_Physics from './Impulse_Physics.js'
 
 export default class Projectile_Physics {
     constructor(projectile){
@@ -21,30 +22,32 @@ export default class Projectile_Physics {
     }
 
     shoot(time){
-        if (!this.model) {return console.error('No model found')}
-        if (!time) { return }
+        if (!this.model || !time) return;
 
-        this.angle = parseFloat(document.getElementById('angle').value)
-        this.initialVelocity = parseFloat(document.getElementById('velocity').value)
+    // Obtener valores del DOM
+    const angle = parseFloat(document.getElementById('angle').value);
+    const force = parseFloat(document.getElementById('force').value);     
+    const deltaT = parseFloat(document.getElementById('duration').value);  
+    const mass = 0.6 ;
 
-        //VALIDACIONES Y RESET DE MENSAJES
-        this.interface.resetErrorMessages()
-        this.validateAngle(this.angle)
-        this.validateVelocity(this.initialVelocity)
+    this.interface.resetErrorMessages();
+    this.validateAngle(angle);
+    this.validateForce(force);
+    this.validateDuration(deltaT);
+    
+    if (!this.isValid) return;
 
-        if (!this.isValid) { return }
+    const impulsePhysics = new Impulse_Physics(mass, force, deltaT, angle);
+    const { vx, vy } = impulsePhysics.calculateVelocityComponents();
 
-        this.angle = THREE.MathUtils.degToRad(this.angle)
+    this.velocityX = vx;
+    this.velocityY = vy;
+    this.velocityZ = 0;
 
-        //MODIFICAR SEGUN LA DIRECCION DEL TIRO - HAY QUE HACER PRUEBAS
-        this.velocityX = this.initialVelocity * Math.cos(this.angle)
-        this.velocityY = this.initialVelocity * Math.sin(this.angle)
-        this.velocityZ = 0
+    this.model.position.set(0, 1, 0);
+    this.inMovement = true;
+    this.startTime = time.current;
         
-        this.model.position.set(0, 1, 0)
-        this.inMovement = true
-        //this.startTime = time.getElapsedTime()
-        this.startTime = time.current;
     }
 
     update(time){
@@ -86,5 +89,20 @@ export default class Projectile_Physics {
             this.isValid = false;
         }    
     }
-
+    validateForce(force) {
+        let valueForce = parseFloat(force).toFixed(2);
+        if (isNaN(valueForce) || valueForce <= 0) {
+            document.getElementById('error-fuerza').textContent = 'La fuerza debe ser un valor positivo.';
+            this.isValid = false;
+        }
+    }
+    validateDuration(duration) {
+        let valueDuration = parseFloat(duration).toFixed(2);
+        if (isNaN(valueDuration) || valueDuration <= 0) {
+            document.getElementById('error-duracion').textContent = 'La duración del impulso debe ser un valor positivo.';
+            this.isValid = false;
+        }
+    }
+    
+    
 }
