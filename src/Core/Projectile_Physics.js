@@ -121,7 +121,7 @@ export default class Projectile_Physics {
     validateForce(force) {
         let valueForce = parseFloat(force).toFixed(2);
         if (isNaN(valueForce) || valueForce <= 0) {
-            document.getElementById('error-fuerza').textContent = 'La fuerza debe ser un valor positivo.';
+            document.getElementById('error-force').textContent = 'La fuerza debe ser un valor positivo.';
             this.isValid = false;
         }
     }
@@ -134,7 +134,7 @@ export default class Projectile_Physics {
     validateDuration(duration) {
         let valueDuration = parseFloat(duration).toFixed(2);
         if (isNaN(valueDuration) || valueDuration <= 0) {
-            document.getElementById('error-duracion').textContent = 'La duración del impulso debe ser un valor positivo.';
+            document.getElementById('error-duration').textContent = 'La duración del impulso debe ser un valor positivo.';
             this.isValid = false;
         }
     }

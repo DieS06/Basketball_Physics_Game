@@ -31,13 +31,15 @@
           <label>Fuerza Aplicada (N):</label>
           <div class="valuesSegment-container">
               <input type="number" id="force" value="50">
+              <span id="error-force" class="error-message"></span>
           </div>
       </div>
   
       <div class="valuesSegment">
           <label>Duración del Impulso (s):</label>
           <div class="valuesSegment-container">
-              <input type="number" id="duration" value="0.2">
+            <input type="number" id="duration" value="0.1" step="0.0001">
+              <span id="error-duration" class="error-message"></span>
           </div>
       </div>
   
