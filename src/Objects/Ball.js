@@ -40,6 +40,34 @@ export default class Ball {
         this.scene.add(this.boundingBoxHelper)
     }
 
+    // setSphereHelper(sphere, color) {
+    //     const geometry = new THREE.SphereGeometry(sphere.radius, 16, 16)
+    //     const material = new THREE.MeshBasicMaterial({ color, wireframe: true, depthTest: false })
+    //     const mesh = new THREE.Mesh(geometry, material)
+    //     mesh.scale.set(1.05)
+    //     mesh.visible = true
+    //     mesh.position.copy(sphere.center)
+    //     return mesh
+    // }
+
+    // setBoundingSphere(){
+    //     this.model.traverse((child) => {
+    //         if (child.isMesh && child.geometry) {
+    //             child.geometry.computeBoundingSphere()
+    
+    //             const sphere = child.geometry.boundingSphere.clone()
+    //             sphere.center.applyMatrix4(child.matrixWorld)
+    
+    //             this.boundingSphere = sphere
+    
+    //             if (this.debug.active) {
+    //                 this.sphereHelper = this.setSphereHelper(sphere, 0x00ff00)
+    //                 this.scene.add(this.sphereHelper)
+    //             }
+    //         }
+    //     })
+    // }
+
     shoot(time) {
         if (this.projectilePhysics) {
             this.projectilePhysics.shoot(time);
@@ -49,6 +77,10 @@ export default class Ball {
     update(time) {
         if (this.projectilePhysics) {
             this.projectilePhysics.update(time);
+        }
+
+        if (this.boundingBox && this.boundingBoxHelper) {
+            this.boundingBox.setFromObject(this.model);
         }
     }
 }

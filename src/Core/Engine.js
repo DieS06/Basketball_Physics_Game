@@ -48,7 +48,6 @@ export default class Engine {
         //TIME TICK EVENT
         this.time.on('tick', () => {
             this.update()
-            
         })
     }
 
@@ -59,6 +58,8 @@ export default class Engine {
 
     update(){
         this.camera.update()
+        // console.log(this.camera.instance.position)
+        // console.log(this.camera.instance.rotation)
         this.world.update()
         this.renderer.update()
     }
