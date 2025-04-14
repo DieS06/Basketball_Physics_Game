@@ -22,6 +22,11 @@ export default [
         path: 'models/Court_Fence/court_fence_01.gltf'
     },
     {
+        name: 'fenceSingleModel',
+        type: 'gltfModel',
+        path: 'models/Court_Fence/court_fence_single_01.gltf'
+    },
+    {
         name: 'housingModel',
         type: 'gltfModel',
         path: 'models/Court_Housing/housing_01.gltf'

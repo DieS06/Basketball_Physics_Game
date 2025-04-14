@@ -7,6 +7,8 @@ export default class Board {
         this.scene = this.engine.scene
         this.resources = this.engine.resources
         this.debug = this.engine.debug
+        this.boundingBox = new THREE.Box3()
+        this.boundingBoxHelper = null
 
         //DEBUG SETUP
         if(this.debug.active){
@@ -33,8 +35,14 @@ export default class Board {
     }
 
     setBoungindBox(){
-        this.boundingBox = new THREE.Box3().setFromObject(this.model)
+        this.boundingBox.setFromObject(this.model)
         this.boundingBoxHelper = new THREE.Box3Helper(this.boundingBox, 0xffff00)
         this.scene.add(this.boundingBoxHelper)
+    }
+
+    update(){
+        if(this.boundingBox && this.boundingBoxHelper){
+            this.boundingBox.setFromObject(this.model)
+        }
     }
 }
