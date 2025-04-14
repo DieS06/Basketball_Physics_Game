@@ -16,7 +16,6 @@ export default class Court_Fence {
         this.resource = this.resources.items.fenceModel
 
         this.setModel()
-        this.setBoungindBox()
     }
 
     setModel(){
@@ -31,11 +30,5 @@ export default class Court_Fence {
                 child.receiveShadow = true
             }
         })
-    }
-
-    setBoungindBox(){
-        this.boundingBox = new THREE.Box3().setFromObject(this.model)
-        this.boundingBoxHelper = new THREE.Box3Helper(this.boundingBox, 0xffff00)
-        this.scene.add(this.boundingBoxHelper)
     }
 }

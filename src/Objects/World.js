@@ -1,6 +1,7 @@
 import Engine from '../Core/Engine.js'
 import Court_Floor from './Court_Floor.js'
 import Court_Fence from './Court_Fence.js'
+import Court_Fence_Single from './Court_Fence_Single.js'
 import Board_Structure from './Board_Structure.js'
 import Board from './Board.js'
 import Board_Ring from './Board_Ring.js'
@@ -17,13 +18,14 @@ export default class World {
         this.resources.on('ready', () =>
         {
             this.Court_Floor = new Court_Floor()
-            this.Court_Fence = new Court_Fence()
+            //this.Court_Fence = new Court_Fence()
+            this.Court_Fence_Single = new Court_Fence_Single()
             this.Board_Structure = new Board_Structure()
             this.Board = new Board()
             this.Board_Ring = new Board_Ring()
             this.Ball = new Ball()
             this.environment = new Environment()
-            this.Collision = new Collision(this.Ball, this.Court_Fence)
+            this.Collision = new Collision(this.Ball, this.Board)
             this.setupUI();
         })
         this.engine.time.on('tick', () => {
@@ -50,6 +52,10 @@ export default class World {
     update() {
         if (this.Ball) {
             this.Ball.update(this.engine.time);
+        }
+
+        if (this.Board) {
+            this.Board.update();
         }
 
         if (this.Collision) {

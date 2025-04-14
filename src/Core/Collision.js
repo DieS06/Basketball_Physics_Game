@@ -1,4 +1,5 @@
 import Engine from './Engine.js'
+import * as THREE from 'three';
 
 export default class Collision {
     constructor(projectile, collider){
@@ -50,25 +51,65 @@ export default class Collision {
         const mass = density * volume
         return mass
     }
+
+    rebounceValidation(reboundVelocity = new THREE.Vector3(), projectilePhysics){
+        if (!isFinite(reboundVelocity.x) || !isFinite(reboundVelocity.y)) {
+            console.warn("¡Velocidad inválida detectada!");
+            if (projectilePhysics){
+                projectilePhysics.inMovement = false;
+            }
+            return false;
+        }
+        return true;
+    }
     
     update(){
-        if(!this.collider.boundingBox || !this.projectile.boudningBox){return}
+        if (!this.projectile || !this.collider) {return}
+        if(!this.collider.boundingBox || !this.projectile.boundingBox){return}
+
+        this.collider.model.updateMatrixWorld(true);
+        this.projectile.model.updateMatrixWorld(true);
 
         this.collider.boundingBox.setFromObject(this.collider.model)
         this.projectile.boundingBox.setFromObject(this.projectile.model)
 
         if(this.projectile.boundingBox.intersectsBox(this.collider.boundingBox)){
-            if(!this.activeCollision){
-                this.activeCollision = true
-                const impulse = this.collideCheck()
-                console.log('Collision detected! Impulse:', impulse)
+            if(!this.activeCollision) {
+                this.activeCollision = true;
+                console.log('Collision detected!');
+        
+                this.projectile.boundingBoxHelper.material.color.set(0xff0000);
+                this.collider.boundingBoxHelper.material.color.set(0xff0000);
 
-                const projectilePhysics = this.projectile.projectilePhysics
-                projectilePhysics.velocityY = -(projectilePhysics.velocityY) * this.restitution
-                projectilePhysics.startTime = this.engine.time.current
+                const projectilePhysics = this.projectile.projectilePhysics;
+
+                const velocity = new THREE.Vector3(
+                    projectilePhysics.velocityX, 
+                    projectilePhysics.velocityY, 
+                    projectilePhysics.velocityZ
+                );
+
+                const normalVector = new THREE.Vector3(1, 0, 0); // Suponiendo plano vertical
+                const normalComponent = velocity.clone().projectOnVector(normalVector).multiplyScalar(-this.restitution);
+                const tangentialComponent = velocity.clone().sub(velocity.clone().projectOnVector(normalVector));
+                const reboundVelocity = normalComponent.add(tangentialComponent);
+
+                projectilePhysics.velocityX = reboundVelocity.x;
+                projectilePhysics.velocityY = reboundVelocity.y;
+                projectilePhysics.velocityZ = reboundVelocity.z;
+
+                projectilePhysics.originalPosition.copy(this.projectile.model.position); 
+                projectilePhysics.startTime = this.engine.time.current;
+
+                console.log('Velocidad después del rebote:', reboundVelocity);
+                console.log('Rebote en posición:', this.projectile.model.position);
             }
+            //AÑADIR EN CASO DE HORIZONTAL O VERTICAL | Suelo o pared
         }else{
             this.activeCollision = false
+
+            this.projectile.boundingBoxHelper.material.color.set(0xffff00);
+            this.collider.boundingBoxHelper.material.color.set(0xffff00);
         }
     }
 }
