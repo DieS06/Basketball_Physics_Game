@@ -1,6 +1,7 @@
 import Engine from '../Core/Engine.js';
 import Interface from '../Utils/Interface.js';
 import Impulse_Physics from './Impulse_Physics.js';
+import Board_Ring from '../Objects/Board_Ring.js';
 import * as THREE from 'three';
 
 export default class Projectile_Physics {
@@ -20,8 +21,11 @@ export default class Projectile_Physics {
         this.velocityY = 0;
         this.velocityZ = 0;
         this.startTime = 0;
+        this.previousY = null;
+
 
         this.originalPosition = new THREE.Vector3(0, 1, 0);
+
     }
 
     shoot(time) {
@@ -52,7 +56,7 @@ export default class Projectile_Physics {
         this.startTime = time.current;
     }
 
-    update(time) {
+    update(time, boardRing) {
         if (!this.model || !this.inMovement) return;
 
         const elapsedTime = (time.current - this.startTime) / 1000;
@@ -64,6 +68,25 @@ export default class Projectile_Physics {
         const newX = this.originalPosition.x + displacementX;
         const newY = this.originalPosition.y + displacementY;
         const newZ = this.originalPosition.z + displacementZ;
+
+      
+
+        // Simple pass-through detection
+        if (boardRing && boardRing.scoreZone) {
+            const ballPos = this.model.getWorldPosition(new THREE.Vector3());
+            const scoreZonePos = boardRing.scoreZone.getWorldPosition(new THREE.Vector3());
+            const distance = ballPos.distanceTo(scoreZonePos);
+        
+            if (
+                this.previousY !== null &&
+                this.previousY > scoreZonePos.y &&      // Came from above
+                newY <= scoreZonePos.y &&               // Passed below
+                distance < 0.4                          // Inside hoop radius
+            ) {
+                console.log("🏆 Score! Clean shot or dunk!");
+            }
+        }
+        this.previousY = newY; // Store the current Y position for next frame        
         
         if (newY <= 0) {
             console.log("La bola ha tocado el suelo.");
@@ -75,12 +98,16 @@ export default class Projectile_Physics {
             } else {
                 this.originalPosition.set(newX, 0, newZ);
                 this.startTime = time.current;
+                this.previousY = null; // Reset dunk detection
             }
         } else {
             this.model.position.set(newX, newY, newZ);
         }
+        
 
+        
         this.interface.update(elapsedTime, newX, newY, newZ, this.velocityX, this.velocityY);
+        
     }
 
     validateAngle(angle) {
@@ -112,6 +139,33 @@ export default class Projectile_Physics {
         if (isNaN(valueDuration) || valueDuration <= 0) {
             document.getElementById('error-duration').textContent = 'La duración del impulso debe ser un valor positivo.';
             this.isValid = false;
+        }
+    }
+
+    checkCollisionRing(ring){
+        const ballBoundingBox = new THREE.Box3().setFromObject(this.model);
+
+        if(ballBoundingBox.intersectsBox(ring.boundingBox)){
+            console.log("Colisión con el aro detectada!");
+
+            const Xp = this.model.position.clone();
+            const Xc = ring.boundingBox.getCenter(new THREE.Vector3());
+            const R = new THREE.Vector3().subVectors(Xp,Xc);
+            const N = R.clone().normalize(); // Normal del aro
+
+            const Vi = new THREE.Vector3(this.velocityX, this.velocityY, this.velocityZ);
+            const e = 0.75;// Coeficiente de restitución
+
+            const dot = Vi.dot(N);
+            
+            const Vf = Vi.clone().sub(N.clone().multiplyScalar((1 + e) * dot));
+
+            this.velocityX = Vf.x;
+            this.velocityY = Vf.y;
+            this.velocityZ = Vf.z;
+            
+            console.log("New velocity after impact:", Vf);
+            
         }
     }
 }

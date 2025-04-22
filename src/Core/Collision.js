@@ -15,6 +15,8 @@ export default class Collision {
         this.initialVelocity = 0
         this.restitution = 0.8
         this.ballMass = this.projectileMass()
+
+        
     }
 
     collideCheck(){
@@ -112,4 +114,6 @@ export default class Collision {
             this.collider.boundingBoxHelper.material.color.set(0xffff00);
         }
     }
+
+    
 }

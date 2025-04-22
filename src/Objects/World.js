@@ -8,12 +8,16 @@ import Board_Ring from './Board_Ring.js'
 import Ball from './Ball.js'
 import Environment from './Environment.js'
 import Collision from '../Core/Collision.js'
+import RingCollision from '../Core/RingCollision.js'
 
 export default class World {
+    
     constructor() {
+        
         this.engine = new Engine()
         this.scene = this.engine.scene
         this.resources = this.engine.resources
+        
 
         this.resources.on('ready', () =>
         {
@@ -26,6 +30,8 @@ export default class World {
             this.Ball = new Ball()
             this.environment = new Environment()
             this.Collision = new Collision(this.Ball, this.Board)
+            this.RingCollision = new RingCollision(this.Ball, this.Board_Ring)
+            
             this.setupUI();
         })
         this.engine.time.on('tick', () => {
@@ -61,5 +67,11 @@ export default class World {
         if (this.Collision) {
             this.Collision.update();
         }
+        if(this.RingCollision){
+            this.RingCollision.update()
+        }
+        
+        
+        
     }
 }
