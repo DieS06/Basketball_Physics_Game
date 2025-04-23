@@ -69,8 +69,15 @@ export default class Projectile_Physics {
         
         if (newY <= 0) {
             console.log("La bola ha tocado el suelo.");
-            this.inMovement = false;
-            this.model.position.set(newX, 0, newZ);
+            this.velocityY *= -0.6; 
+            if (Math.abs(this.velocityY) < 0.5) {
+                this.inMovement = false;
+                this.model.position.set(newX, 0, newZ);
+                console.log("El balón se ha detenido tras perder energía.");
+            } else {
+                this.originalPosition.set(newX, 0, newZ);
+                this.startTime = time.current;
+            }
         } else {
             this.model.position.set(newX, newY, newZ);
         }
