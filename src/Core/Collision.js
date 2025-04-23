@@ -1,10 +1,12 @@
 import Engine from './Engine.js'
+import ReScale from '../Utils/ReScale.js';
 import * as THREE from 'three';
 
 export default class Collision {
     constructor(projectile, collider){
         this.engine = new Engine()
         this.scene = this.engine.scene
+        this.reScale = new ReScale(0.25)
 
         this.collider = collider
         this.projectile = projectile
@@ -13,7 +15,7 @@ export default class Collision {
         this.activeCollision = false
         this.angle = 0
         this.initialVelocity = 0
-        this.restitution = 0.8
+        this.restitution = 0.85
         this.ballMass = this.projectileMass()
     }
 
@@ -92,7 +94,7 @@ export default class Collision {
                 const normalVector = new THREE.Vector3(1, 0, 0); // Suponiendo plano vertical
                 const normalComponent = velocity.clone().projectOnVector(normalVector).multiplyScalar(-this.restitution);
                 const tangentialComponent = velocity.clone().sub(velocity.clone().projectOnVector(normalVector));
-                const reboundVelocity = normalComponent.add(tangentialComponent);
+                const reboundVelocity = normalComponent.add(tangentialComponent.multiplyScalar(this.restitution));
 
                 projectilePhysics.velocityX = reboundVelocity.x;
                 projectilePhysics.velocityY = reboundVelocity.y;

@@ -1,6 +1,7 @@
 import Engine from '../Core/Engine.js';
 import Interface from '../Utils/Interface.js';
 import Impulse_Physics from './Impulse_Physics.js';
+import ReScale from '../Utils/ReScale.js';
 import * as THREE from 'three';
 
 export default class Projectile_Physics {
@@ -10,10 +11,11 @@ export default class Projectile_Physics {
         this.interface = new Interface();
         this.scene = this.engine.scene;
         this.model = projectile;
+        this.reScale = new ReScale(0.25);
 
         this.inMovement = false;
         this.isValid = true;
-        this.gravity = -9.81;
+        this.gravity = this.reScale.scaleGravity(-9.81);
         this.angle = 0;
         this.initialVelocity = 0;
         this.velocityX = 0;
@@ -73,7 +75,7 @@ export default class Projectile_Physics {
             this.model.position.set(newX, newY, newZ);
         }
 
-        this.interface.update(elapsedTime, newX, newY, newZ, this.velocityX, this.velocityY);
+        this.interface.update(elapsedTime, newX, newY, newZ, this.reScale.deScaleValue(this.velocityX), this.reScale.deScaleValue(this.velocityY));
     }
 
     validateAngle(angle) {
