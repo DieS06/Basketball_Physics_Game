@@ -3,115 +3,91 @@ import ReScale from '../Utils/ReScale.js';
 import * as THREE from 'three';
 
 export default class Collision {
-    constructor(projectile, collider){
+    constructor(projectile, colliders) {
         this.engine = new Engine()
         this.scene = this.engine.scene
         this.reScale = new ReScale(0.25)
 
-        this.collider = collider
         this.projectile = projectile
-
-        this.isValid = true
-        this.activeCollision = false
-        this.angle = 0
-        this.initialVelocity = 0
+        this.colliders = colliders // ahora es un array
         this.restitution = 0.85
         this.ballMass = this.projectileMass()
+
+        this.activeCollisions = new Set() // para manejar múltiples colisiones activas
     }
 
-    collideCheck(){
-        if (!this.collider) {return console.error('No collider object found')}
-        if (!this.projectile) {return console.error('No projectile object found')}
-        
-        const normalVector = new THREE.Vector3(1, 0, 0)
-        // this.angle = parseFloat(document.getElementById('angle').value)
-        this.initialVelocity = parseFloat(document.getElementById('velocity').value)
-
-        //Componente normal PERPENDICULAR al vector normal
-        let normalComponent = (this.initialVelocity * normalVector.x) *  normalVector.x 
-        //Componente tangencial PARALLELO al vector normal
-        let tangentialComponent = this.initialVelocity - normalComponent
-        //Aplicación del coheficiente de restitución
-        this.finalVelocity = -(this.restitution * normalComponent)
-        this.totalVelocity = this.finalVelocity + tangentialComponent
-        //Impulso aplicado al balón
-        this.impulse = this.ballMass * (this.totalVelocity - this.initialVelocity)
-        
-        // //Polar a cartesiano
-        // this.initialVelocityVector = new THREE.Vector3(this.initialVelocity * Math.cos(this.angle), this.initialVelocity * Math.sin(this.angle), 0)
-        // //Rebote
-        // this.finalVelocityVector = new THREE.Vector3(this.initialVelocityVector.x * restitution, this.initialVelocityVector.y * restitution, 0)
-        // //Proyectar el vector de velocidad inicial sobre el vector normal
-        // this.finalVelocityVector.projectOnVector(normalVector).multiplyScalar(-1 * restitution)
-
-        return this.impulse
-    }
-
-    projectileMass(){
+    projectileMass() {
         const density = 0.09
         const volume = 7130
-        const mass = density * volume
-        return mass
+        return density * volume
     }
 
-    rebounceValidation(reboundVelocity = new THREE.Vector3(), projectilePhysics){
+    rebounceValidation(reboundVelocity = new THREE.Vector3(), projectilePhysics) {
         if (!isFinite(reboundVelocity.x) || !isFinite(reboundVelocity.y)) {
             console.warn("¡Velocidad inválida detectada!");
-            if (projectilePhysics){
+            if (projectilePhysics) {
                 projectilePhysics.inMovement = false;
             }
             return false;
         }
         return true;
     }
-    
-    update(){
-        if (!this.projectile || !this.collider) {return}
-        if(!this.collider.boundingBox || !this.projectile.boundingBox){return}
 
-        this.collider.model.updateMatrixWorld(true);
+    update() {
+        if (!this.projectile || !this.colliders || this.colliders.length === 0) return;
+        if (!this.projectile.boundingBox) return;
+
         this.projectile.model.updateMatrixWorld(true);
+        this.projectile.boundingBox.setFromObject(this.projectile.model);
 
-        this.collider.boundingBox.setFromObject(this.collider.model)
-        this.projectile.boundingBox.setFromObject(this.projectile.model)
+        for (const collider of this.colliders) {
+            if (!collider.boundingBox) continue;
 
-        if(this.projectile.boundingBox.intersectsBox(this.collider.boundingBox)){
-            if(!this.activeCollision) {
-                this.activeCollision = true;
-                console.log('Collision detected!');
-        
-                this.projectile.boundingBoxHelper.material.color.set(0xff0000);
-                this.collider.boundingBoxHelper.material.color.set(0xff0000);
+            collider.model.updateMatrixWorld(true);
+            collider.boundingBox.setFromObject(collider.model);
 
-                const projectilePhysics = this.projectile.projectilePhysics;
+            const id = collider.model.uuid;
 
-                const velocity = new THREE.Vector3(
-                    projectilePhysics.velocityX, 
-                    projectilePhysics.velocityY, 
-                    projectilePhysics.velocityZ
-                );
+            if (this.projectile.boundingBox.intersectsBox(collider.boundingBox)) {
+                if (!this.activeCollisions.has(id)) {
+                    this.activeCollisions.add(id);
+                    console.log(`Collision detected with object ${id}`);
 
-                const normalVector = new THREE.Vector3(1, 0, 0); // Suponiendo plano vertical
-                const normalComponent = velocity.clone().projectOnVector(normalVector).multiplyScalar(-this.restitution);
-                const tangentialComponent = velocity.clone().sub(velocity.clone().projectOnVector(normalVector));
-                const reboundVelocity = normalComponent.add(tangentialComponent.multiplyScalar(this.restitution));
+                    this.projectile.boundingBoxHelper.material.color.set(0xff0000);
+                    collider.boundingBoxHelper.material.color.set(0xff0000);
 
-                projectilePhysics.velocityX = reboundVelocity.x;
-                projectilePhysics.velocityY = reboundVelocity.y;
-                projectilePhysics.velocityZ = reboundVelocity.z;
+                    const projectilePhysics = this.projectile.projectilePhysics;
 
-                projectilePhysics.originalPosition.copy(this.projectile.model.position); 
-                projectilePhysics.startTime = this.engine.time.current;
+                    const velocity = new THREE.Vector3(
+                        projectilePhysics.velocityX,
+                        projectilePhysics.velocityY,
+                        projectilePhysics.velocityZ
+                    );
 
-                console.log('Velocidad después del rebote:', reboundVelocity);
-                console.log('Rebote en posición:', this.projectile.model.position);
+                    const normalVector = new THREE.Vector3(1, 0, 0); // Este deberías ajustarlo según la orientación real del objeto
+                    const normalComponent = velocity.clone().projectOnVector(normalVector).multiplyScalar(-this.restitution);
+                    const tangentialComponent = velocity.clone().sub(velocity.clone().projectOnVector(normalVector));
+                    const reboundVelocity = normalComponent.add(tangentialComponent.multiplyScalar(this.restitution));
+
+                    if (this.rebounceValidation(reboundVelocity, projectilePhysics)) {
+                        projectilePhysics.velocityX = reboundVelocity.x;
+                        projectilePhysics.velocityY = reboundVelocity.y;
+                        projectilePhysics.velocityZ = reboundVelocity.z;
+
+                        projectilePhysics.originalPosition.copy(this.projectile.model.position);
+                        projectilePhysics.startTime = this.engine.time.current;
+
+                        console.log('Velocidad después del rebote:', reboundVelocity);
+                        console.log('Rebote en posición:', this.projectile.model.position);
+                    }
+                }
+            } else {
+                if (this.activeCollisions.has(id)) {
+                    this.activeCollisions.delete(id);
+                    this.projectile.boundingBoxHelper.material.color.set(0xffff00);
+                    collider.boundingBoxHelper.material.color.set(0xffff00);
+                }
             }
-            //AÑADIR EN CASO DE HORIZONTAL O VERTICAL | Suelo o pared
-        }else{
-            this.activeCollision = false
-
-            this.projectile.boundingBoxHelper.material.color.set(0xffff00);
-            this.collider.boundingBoxHelper.material.color.set(0xffff00);
         }
     }
 }
