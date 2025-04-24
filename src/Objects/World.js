@@ -18,14 +18,17 @@ export default class World {
         this.resources.on('ready', () =>
         {
             this.Court_Floor = new Court_Floor()
-            //this.Court_Fence = new Court_Fence()
+            this.Court_Fence = new Court_Fence()
             this.Court_Fence_Single = new Court_Fence_Single()
             this.Board_Structure = new Board_Structure()
             this.Board = new Board()
             this.Board_Ring = new Board_Ring()
             this.Ball = new Ball()
             this.environment = new Environment()
-            this.Collision = new Collision(this.Ball, this.Board)
+            this.Collision = new Collision(this.Ball, [
+                this.Board,
+                this.Court_Fence_Single
+            ])
             this.setupUI();
         })
         this.engine.time.on('tick', () => {
