@@ -31,7 +31,7 @@ export default class Projectile_Physics {
 
         const angle = parseFloat(document.getElementById('angle').value);
         const force = parseFloat(document.getElementById('force').value);     
-        const deltaT = parseFloat(document.getElementById('duration').value);  
+        const deltaT = 0.1;  
         const mass = 0.6;
 
         this.interface.resetErrorMessages();
@@ -93,13 +93,13 @@ export default class Projectile_Physics {
         }
     }
 
-    validateVelocity(velocity) {
-        let valueVi = parseFloat(velocity).toFixed(2);
-        if (isNaN(valueVi) || valueVi <= 0) {
-            document.getElementById('error-velocidad').textContent = 'La velocidad debe ser positiva.';
-            this.isValid = false;
-        }
-    }
+    // validateVelocity(velocity) {
+    //     let valueVi = parseFloat(velocity).toFixed(2);
+    //     if (isNaN(valueVi) || valueVi <= 0) {
+    //         document.getElementById('error-velocidad').textContent = 'La velocidad debe ser positiva.';
+    //         this.isValid = false;
+    //     }
+    // }
 
     validateForce(force) {
         let valueForce = parseFloat(force).toFixed(2);

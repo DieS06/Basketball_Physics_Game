@@ -1,4 +1,5 @@
 import Engine from '../Core/Engine.js'
+import * as THREE from 'three'
 
 export default class Board_Ring {
     constructor(){
@@ -17,7 +18,9 @@ export default class Board_Ring {
         this.resorce = this.resources.items.targetModel
 
         this.setModel()
+        this.setBoungindBox();
     }
+
     setModel(){
         this.model = this.resource.scene
         this.model.position.set(0, 0, 0)
@@ -30,4 +33,13 @@ export default class Board_Ring {
             }
         })
     }
+
+    setBoungindBox() {
+        this.boundingBox = new THREE.Box3().setFromObject(this.model);
+        this.boundingSphere = this.boundingBox.getBoundingSphere(
+          new THREE.Sphere()
+        );
+        this.boundingBoxHelper = new THREE.Box3Helper(this.boundingBox, 0xffff00);
+        this.scene.add(this.boundingBoxHelper);
+      }
 }
