@@ -3,17 +3,18 @@ import ReScale from '../Utils/ReScale.js';
 import * as THREE from 'three';
 
 export default class Collision {
-    constructor(projectile, colliders) {
+    constructor(projectile, colliders, circleCollider) {
         this.engine = new Engine()
         this.scene = this.engine.scene
         this.reScale = new ReScale(0.25)
 
         this.projectile = projectile
-        this.colliders = colliders // ahora es un array
+        this.colliders = colliders 
+        this.circleCollider = circleCollider
+
         this.restitution = 0.85
         this.ballMass = this.projectileMass()
-
-        this.activeCollisions = new Set() // para manejar múltiples colisiones activas
+        this.activeCollisions = new Set()
     }
 
     projectileMass() {
@@ -25,17 +26,14 @@ export default class Collision {
     rebounceValidation(reboundVelocity = new THREE.Vector3(), projectilePhysics) {
         if (!isFinite(reboundVelocity.x) || !isFinite(reboundVelocity.y)) {
             console.warn("¡Velocidad inválida detectada!");
-            if (projectilePhysics) {
-                projectilePhysics.inMovement = false;
-            }
+            if (projectilePhysics) projectilePhysics.inMovement = false;
             return false;
         }
         return true;
     }
 
     update() {
-        if (!this.projectile || !this.colliders || this.colliders.length === 0) return;
-        if (!this.projectile.boundingBox) return;
+        if (!this.projectile || !this.colliders || !this.projectile.boundingBox) return;
 
         this.projectile.model.updateMatrixWorld(true);
         this.projectile.boundingBox.setFromObject(this.projectile.model);
@@ -57,14 +55,13 @@ export default class Collision {
                     collider.boundingBoxHelper.material.color.set(0xff0000);
 
                     const projectilePhysics = this.projectile.projectilePhysics;
-
                     const velocity = new THREE.Vector3(
                         projectilePhysics.velocityX,
                         projectilePhysics.velocityY,
                         projectilePhysics.velocityZ
                     );
 
-                    const normalVector = new THREE.Vector3(1, 0, 0); // Este deberías ajustarlo según la orientación real del objeto
+                    const normalVector = new THREE.Vector3(1, 0, 0); 
                     const normalComponent = velocity.clone().projectOnVector(normalVector).multiplyScalar(-this.restitution);
                     const tangentialComponent = velocity.clone().sub(velocity.clone().projectOnVector(normalVector));
                     const reboundVelocity = normalComponent.add(tangentialComponent.multiplyScalar(this.restitution));
@@ -82,6 +79,7 @@ export default class Collision {
                     }
                 }
             } else {
+                const id = collider.model.uuid;
                 if (this.activeCollisions.has(id)) {
                     this.activeCollisions.delete(id);
                     this.projectile.boundingBoxHelper.material.color.set(0xffff00);
@@ -89,5 +87,43 @@ export default class Collision {
                 }
             }
         }
+
+            if (this.circleCollider && this.projectile.boundingSphere && this.circleCollider.boundingSphere) {
+                if (this.projectile.boundingSphere.intersectsSphere(this.circleCollider.boundingSphere)) {
+                    const coeficientR = 0.75;
+                    const ballCenter = this.projectile.boundingSphere.center;
+                    const ringCenter = this.circleCollider.boundingSphere.center;
+                    const projectilePhysics = this.projectile.projectilePhysics;
+    
+                    const velocity3 = new THREE.Vector3(
+                        projectilePhysics.velocityX,
+                        projectilePhysics.velocityY,
+                        projectilePhysics.velocityZ
+                    );
+    
+                    const direction = new THREE.Vector3().subVectors(ballCenter, ringCenter).normalize();
+                    const collisionPoint = new THREE.Vector3().addVectors(
+                        ringCenter,
+                        direction.multiplyScalar(this.circleCollider.boundingSphere.radius)
+                    );
+                    const collisionDirection = new THREE.Vector3().subVectors(collisionPoint, ringCenter).normalize();
+    
+                    if (Math.abs(collisionDirection.x) > 0.5 && Math.abs(collisionDirection.y) < 0.85) {
+                        const finalVelocity3 = new THREE.Vector3().subVectors(
+                            velocity3,
+                            collisionDirection.multiplyScalar((1 + coeficientR) * velocity3.dot(collisionDirection))
+                        );
+    
+                        projectilePhysics.velocityX = finalVelocity3.x;
+                        projectilePhysics.velocityY = finalVelocity3.y;
+                        projectilePhysics.velocityZ = finalVelocity3.z;
+    
+                        projectilePhysics.originalPosition.copy(this.projectile.model.position);
+                        projectilePhysics.startTime = this.engine.time.current;
+    
+                        console.log("Colisión con el aro. Velocidad final:", finalVelocity3);
+                    }
+                }
+            }
     }
 }

@@ -34,39 +34,21 @@ export default class Ball {
         this.projectilePhysics = new Projectile_Physics(this.model);
     }
 
-    setBoungindBox(){
-        this.boundingBox = new THREE.Box3().setFromObject(this.model)
-        this.boundingBoxHelper = new THREE.Box3Helper(this.boundingBox, 0xffff00)
-        this.scene.add(this.boundingBoxHelper)
-    }
+    setBoungindBox() {
+        this.boundingBox = new THREE.Box3().setFromObject(this.model);
+        this.boundingSphere = this.boundingBox.getBoundingSphere(
+          new THREE.Sphere()
+        );
+        this.boundingBoxHelper = new THREE.Box3Helper(this.boundingBox, 0xffff00);
+        this.scene.add(this.boundingBoxHelper);
+      }
 
-    // setSphereHelper(sphere, color) {
-    //     const geometry = new THREE.SphereGeometry(sphere.radius, 16, 16)
-    //     const material = new THREE.MeshBasicMaterial({ color, wireframe: true, depthTest: false })
-    //     const mesh = new THREE.Mesh(geometry, material)
-    //     mesh.scale.set(1.05)
-    //     mesh.visible = true
-    //     mesh.position.copy(sphere.center)
-    //     return mesh
-    // }
-
-    // setBoundingSphere(){
-    //     this.model.traverse((child) => {
-    //         if (child.isMesh && child.geometry) {
-    //             child.geometry.computeBoundingSphere()
-    
-    //             const sphere = child.geometry.boundingSphere.clone()
-    //             sphere.center.applyMatrix4(child.matrixWorld)
-    
-    //             this.boundingSphere = sphere
-    
-    //             if (this.debug.active) {
-    //                 this.sphereHelper = this.setSphereHelper(sphere, 0x00ff00)
-    //                 this.scene.add(this.sphereHelper)
-    //             }
-    //         }
-    //     })
-    // }
+    updateBoundingSphere() {
+        const boundingBox = new THREE.Box3().setFromObject(this.model);
+        this.boundingSphere = this.boundingBox.getBoundingSphere(
+          this.boundingSphere
+        );
+      }
 
     shoot(time) {
         if (this.projectilePhysics) {
@@ -77,10 +59,11 @@ export default class Ball {
     update(time) {
         if (this.projectilePhysics) {
             this.projectilePhysics.update(time);
-        }
-
-        if (this.boundingBox && this.boundingBoxHelper) {
+          }
+      
+          if (this.boundingBox && this.boundingBoxHelper) {
             this.boundingBox.setFromObject(this.model);
-        }
+          }
+          this.updateBoundingSphere();
     }
 }

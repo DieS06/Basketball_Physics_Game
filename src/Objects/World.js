@@ -28,7 +28,7 @@ export default class World {
             this.Collision = new Collision(this.Ball, [
                 this.Board,
                 this.Court_Fence_Single
-            ])
+            ],this.Board_Ring);
             this.setupUI();
         })
         this.engine.time.on('tick', () => {

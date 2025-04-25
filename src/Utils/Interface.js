@@ -4,8 +4,8 @@ export default class Interface {
     }
 
     resetErrorMessages() {
-        document.getElementById('error-velocidad').textContent = '';
-        document.getElementById('velocidad').textContent = '';
+        // document.getElementById('error-velocidad').textContent = '';
+        // document.getElementById('velocidad').textContent = '';
         document.getElementById('error-angulo').textContent = '';  
     }
 
